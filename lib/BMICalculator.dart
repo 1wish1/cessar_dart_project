@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:health_management/Service/UserService.dart';
+import 'package:health_management/di.dart';
+import 'package:health_management/model/User.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'LoginPage.dart' as Login;
 import 'SignupPage.dart' as Signup;
+import 'package:get_it/get_it.dart';
 
 class BMICalculator extends StatefulWidget {
   const BMICalculator({Key? key}) : super(key: key);
@@ -17,11 +22,21 @@ class _BMICalculatorState extends State<BMICalculator> {
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
+   UserService get userService => sl<UserService>();
+
+  
   List<String> _bmiHistory = [];
 
   double? _bmiResult;
   String _bmiCategory = '';
-  String? _age;
+  User? user;
+
+
+  void initState() {
+    super.initState();
+    user = userService.currentUser;  // Fetch age from UserService if available
+    print(user);
+  }
 
   // Method to determine BMI category
   String _getBMICategory(double bmi) {
@@ -83,9 +98,15 @@ class _BMICalculatorState extends State<BMICalculator> {
       return Colors.grey; // Default color for undefined categories
     }
   }
+  void _deleteHistory(int index) {
+    setState(() {
+      _bmiHistory.removeAt(index);
+    });
+  }
   
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       appBar: AppBar(
       title: const Text('Health Management'),
@@ -94,10 +115,7 @@ class _BMICalculatorState extends State<BMICalculator> {
             padding: EdgeInsets.only(left: 5.0), // Add left margin to the first button
             child: TextButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Login.LoginPage()),
-                );
+               Navigator.pushNamed(context, "/login");
               },
               style: TextButton.styleFrom(
                 shape: RoundedRectangleBorder(
@@ -114,10 +132,7 @@ class _BMICalculatorState extends State<BMICalculator> {
             padding: const EdgeInsets.only(right: 25.0), // Add left margin to the second button
             child: TextButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Signup.SignupPage()),
-                );
+                Navigator.pushNamed(context, "/signup");
               },
               style: TextButton.styleFrom(
                 shape: RoundedRectangleBorder(
@@ -132,10 +147,20 @@ class _BMICalculatorState extends State<BMICalculator> {
           ),
       ],
     ),
-      body: SingleChildScrollView(
+      body: 
+      SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: 
+        Column(
           children: [
+              Text(
+              'Hi, ${userService.currentUser?.username ?? "Guest"}!',
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.teal,
+              ),
+            ),
             Card(
               elevation: 5,
               child: Padding(
@@ -236,9 +261,14 @@ class _BMICalculatorState extends State<BMICalculator> {
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0), // Adds padding inside the container
                             child: ListTile(
-                              leading: const Icon(Icons.history, color: Colors.teal),
+                              leading: const Icon(Icons.history, color: Color.fromARGB(255, 84, 97, 96)),
                               title: Text(_bmiHistory[index]),
+                              trailing: IconButton(
+                              icon: const Icon(Icons.delete, color: Color.fromARGB(255, 202, 214, 208)),
+                                onPressed: () => _deleteHistory(index),
+                              ),
                             ),
+                            
                           ),
                         );
                       },

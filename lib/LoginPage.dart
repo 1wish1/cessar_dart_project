@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:health_management/BMICalculator.dart';
+import 'package:health_management/Service/UserService.dart';
+import 'package:health_management/model/User.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -105,17 +109,16 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      // If all validations pass
+                      final user = User(
+                          username: _usernameController.text,
+                          email: _emailController.text,
+                          password: _passwordController.text, 
+                          id: 0,
+                        );
+                        await GetIt.instance<UserService>().loginUser(user);
                       
-
-
-
-
-
-
-
                       showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
@@ -125,7 +128,11 @@ class _LoginPageState extends State<LoginPage> {
                           actions: [
                             TextButton(
                               onPressed: () {
-                                Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(builder: (context) => BMICalculator()),
+                                  );
                               },
                               child: const Text('OK'),
                             ),

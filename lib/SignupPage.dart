@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:health_management/BMICalculator.dart';
 import 'package:health_management/Service/UserService.dart';
-import 'package:health_management/model/user.dart';
+import 'package:health_management/model/User.dart';
 
 
 class SignupPage extends StatefulWidget {
@@ -16,12 +18,12 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  late final UserService _userService;
+
 
   @override
   void initState() {
     super.initState();
-    _userService = UserService();
+    
   }
 
   @override
@@ -118,15 +120,16 @@ class _SignupPageState extends State<SignupPage> {
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      // If all validations pass
-                      final user = User(
-                        passwordHash: _usernameController.text.trim(),
-                        email: _emailController.text.trim(),
-                        id: _passwordController.text.trim(), 
-                        username: 'asdasda',
-                      );try {
-                        // Call UserService to insert user
-                        await _userService.createUser(username: 'weffwefwef', email: 'wefwefef', password: 'wefwefwefwef');
+                      try {
+                        final user = User(
+                          username: _usernameController.text,
+                          email: _emailController.text,
+                          password: _passwordController.text, 
+                          id: 0,
+                        );
+                        await GetIt.instance<UserService>().insertUser(user);
+
+
                         
                         showDialog(
                           context: context,
@@ -139,6 +142,10 @@ class _SignupPageState extends State<SignupPage> {
                               TextButton(
                                 onPressed: () {
                                   Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(builder: (context) => BMICalculator()),
+                                  );
                                 },
                                 child: const Text('OK'),
                               ),
@@ -146,12 +153,13 @@ class _SignupPageState extends State<SignupPage> {
                           ),
                         );
                       } catch (e) {
+                        print(e);
                         // Show error dialog
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
                             title: const Text('Signup Failed'),
-                            content: Text('An error occurred: $e'),
+                            content: Text('An error occurred: ${e}'),
                             actions: [
                               TextButton(
                                 onPressed: () {
