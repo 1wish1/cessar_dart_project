@@ -4,8 +4,10 @@ import 'dart:ffi';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:health_management/Service/BMIService.dart';
 import 'package:health_management/Service/TokenService.dart';
 import 'package:health_management/di.dart';
+import 'package:health_management/model/BMI.dart';
 import 'package:health_management/model/User.dart';
 import 'package:neo4j_http_client/neo4j_http_client.dart';
 import 'package:bcrypt/bcrypt.dart';
@@ -16,20 +18,23 @@ import '../Connection/Neo4jConnection.dart';
 class UserService with ChangeNotifier{
   // Method to insert a user into the Neo4j database
   final client = Neo4jConnection.getClient();
-  TokenService get tokenService => sl<TokenService>();
 
-  
+  TokenService get tokenService => sl<TokenService>();
+  BMIService get _BMIService => sl<BMIService>();
   User? _currentUser;
   bool isLogin = false; 
-
   User? get currentUser => _currentUser;
+
+
 
   Future<void> insertUser(User user ) async {
     user.password = BCrypt.hashpw(user.password, BCrypt.gensalt());
     String token = generateToken(); 
+
     if (!await isEmailUnique(user.email)){
       throw Exception("Email already exists");
     }
+    
     final query = Query(
       'CREATE (u:User {username: \$username, password: \$password, email: \$email, token: \$token}) RETURN u',
       parameters: {
@@ -39,6 +44,8 @@ class UserService with ChangeNotifier{
         'token': BCrypt.hashpw(token, BCrypt.gensalt()), // Assuming you have a function to generate tokens
       },
     );
+
+
     try {
       // Execute the query
       final response = await client.execute([query]);
@@ -67,11 +74,12 @@ class UserService with ChangeNotifier{
       
           _currentUser = _user;
           tokenService.saveTokenToFile(token,_user.id);
-
+          isLogin = true;
+          _BMIService.getBMIsForUser(_user.id);
           notifyListeners();
 
           print('User created: $currentUser');
-          isLogin = true;
+        
         }
       }
     }
@@ -123,6 +131,7 @@ class UserService with ChangeNotifier{
               // updateToken(user.email,user.email,BCrypt.hashpw(_user.token, BCrypt.gensalt()));
 
               _currentUser = _user;
+              _BMIService.getBMIsForUser(_user.id);
               isLogin = true;
               await updateToken(_user.username, user.email,_user.id);
               notifyListeners();
@@ -132,15 +141,12 @@ class UserService with ChangeNotifier{
               throw Exception('Invalid password');
             }
           }
-        } else {
-          throw Exception('User not found');
-        }
+        } 
       } else {
         throw Exception('No user found with the username: ${user.username}');
       }
     } catch (e) {
-      print('Error logging in: $e');
-      throw Exception('Login failed: $e');
+      throw Exception('Login failed no User found ');
     }
   }
 
@@ -186,6 +192,7 @@ class UserService with ChangeNotifier{
   bool verifyPassword(String plainPassword, String hashedPassword) {
     return BCrypt.checkpw(plainPassword, hashedPassword);
   }
+  
   String generateToken() {
     final random = Random.secure();
     final bytes = List<int>.generate(32, (_) => random.nextInt(256));

@@ -1,6 +1,10 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
+import 'package:health_management/Service/BMIService.dart';
 import 'package:health_management/Service/UserService.dart';
 import 'package:health_management/di.dart';
+import 'package:health_management/model/BMI.dart';
 import 'package:health_management/model/User.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -23,9 +27,9 @@ class _BMICalculatorState extends State<BMICalculator> {
   final TextEditingController _heightController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
    UserService get userService => sl<UserService>();
-
-  
-  List<String> _bmiHistory = [];
+    BMIService get _BMIService => sl<BMIService>();
+   
+  List<BMI> _bmiHistory = [];
 
   double? _bmiResult;
   String _bmiCategory = '';
@@ -35,7 +39,11 @@ class _BMICalculatorState extends State<BMICalculator> {
   void initState() {
     super.initState();
     user = userService.currentUser;  // Fetch age from UserService if available
-    print(user);
+    if(user != null){
+      setState(() {
+        _bmiHistory = _BMIService.bmiHistory;
+      });
+    }
   }
 
   // Method to determine BMI category
@@ -51,24 +59,42 @@ class _BMICalculatorState extends State<BMICalculator> {
     }
   }
 
-  void _calculateBMI() {
+  Future<void> _calculateBMI() async {
     final double? weight = double.tryParse(_weightController.text);
     final double? height = double.tryParse(_heightController.text);
     final int? _age = int.tryParse(_ageController.text);
 
     if (weight != null && height != null && height > 0) {
-      setState(() {
-        _bmiResult = weight / (height * height);
-        _bmiCategory = _getBMICategory(_bmiResult!);
-        
-        // Get the current date and time
-        String currentDateTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+      // Calculate BMI and determine the category
+      final double bmiResult = weight / (height * height);
+      final String bmiCategory = _getBMICategory(bmiResult);
 
-        // Add BMI details with date and time to the history
-        _bmiHistory.add(
-          "Date: $currentDateTime, Age: $_age, Weight: ${weight}, Height: ${height}, BMI: ${_bmiResult!} ($_bmiCategory)",
-        );
-      });
+      // Get the current date and time
+      final DateTime currentDateTime = DateTime.now();
+
+      BMI? bmi = BMI(
+            age: _age,
+            dateTime: currentDateTime,
+            height: height,
+            weight: weight,
+            bmiCategory: bmiCategory,
+            bmiResult: bmiResult,
+          );
+
+      if (userService.isLogin) {
+
+       await _BMIService.insertBMI(bmi);
+       setState(() {
+        _bmiHistory = _BMIService.bmiHistory;
+        });
+
+      }else{
+        setState(() {
+        _bmiHistory.insert(0,bmi);
+        });
+      }
+
+      // Update the stat
     }
   }
   Color _getCategoryColor(String category) {
@@ -98,7 +124,14 @@ class _BMICalculatorState extends State<BMICalculator> {
       return Colors.grey; // Default color for undefined categories
     }
   }
-  void _deleteHistory(int index) {
+  void _deleteHistorySign(int id,int index) {
+    
+    _BMIService.deleteBMI(id);
+    setState(() {
+      _bmiHistory.removeAt(index);
+    });
+  }
+  void _deleteHistoryGuest(int index) {
     setState(() {
       _bmiHistory.removeAt(index);
     });
@@ -255,17 +288,23 @@ class _BMICalculatorState extends State<BMICalculator> {
                         return Container(
                           margin: const EdgeInsets.symmetric(vertical: 8.0), // Adds top and bottom spacing
                           decoration: BoxDecoration(
-                            color: _getBackgroundColor(_bmiHistory[index]), // Background color
+                            color: _getBackgroundColor(_bmiHistory[index].toString()), // Background color
                             borderRadius: BorderRadius.circular(12.0), // Rounded corners
                           ),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0), // Adds padding inside the container
                             child: ListTile(
                               leading: const Icon(Icons.history, color: Color.fromARGB(255, 84, 97, 96)),
-                              title: Text(_bmiHistory[index]),
+                              title: Text(_bmiHistory[index].toString()),
                               trailing: IconButton(
                               icon: const Icon(Icons.delete, color: Color.fromARGB(255, 202, 214, 208)),
-                                onPressed: () => _deleteHistory(index),
+                                onPressed: () {
+                                  if(userService.isLogin){  
+                                    _deleteHistorySign(_bmiHistory[index].id,index);
+                                  }else{
+                                    _deleteHistoryGuest(index);
+                                  }
+                                } 
                               ),
                             ),
                             

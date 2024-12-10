@@ -117,28 +117,46 @@ class _LoginPageState extends State<LoginPage> {
                           password: _passwordController.text, 
                           id: 0,
                         );
-                        await GetIt.instance<UserService>().loginUser(user);
-                      
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Login Successful'),
-                          content: Text(
-                              'Welcome, ${_usernameController.text}!'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
+                        try{
+                          await GetIt.instance<UserService>().loginUser(user);
+
+                          showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Login Successful'),
+                            content: Text(
+                                'Welcome, ${_usernameController.text}!'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                    Navigator.of(context).pop();
+                                    Navigator.of(context).pop();
+                                    Navigator.of(context).pushReplacement(
+                                      MaterialPageRoute(builder: (context) => BMICalculator()),
+                                    );
+                                },
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
+                        }catch(e){
+                          showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('login Failed'),
+                            content: Text( '${e}'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
                                   Navigator.of(context).pop();
-                                  Navigator.of(context).pop();
-                                  Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(builder: (context) => BMICalculator()),
-                                  );
-                              },
-                              child: const Text('OK'),
-                            ),
-                          ],
-                        ),
-                      );
+                                },
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
                     }
                   },
                   style: ElevatedButton.styleFrom(

@@ -153,7 +153,6 @@ class _SignupPageState extends State<SignupPage> {
                           ),
                         );
                       } catch (e) {
-                        print(e);
                         // Show error dialog
                         showDialog(
                           context: context,

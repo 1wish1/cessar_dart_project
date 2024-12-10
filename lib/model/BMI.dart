@@ -2,11 +2,12 @@ import 'dart:ffi';
 
 class BMI {
   final DateTime dateTime;
-  final int age;
-  final Float weight;
-  final Float height;
-  final Float bmiResult;
+  final int? age;
+  final double weight;
+  final double height;
+  final double? bmiResult;
   final String bmiCategory;
+  late int id;
 
   BMI({
     required this.dateTime,
@@ -22,15 +23,15 @@ class BMI {
     return BMI(
       dateTime: map['username'] as DateTime,
       age: map['age'] as int,
-      weight: map['weight'] as Float,
-      height: map['height'] as Float,
-      bmiResult: map["bmiResult"] as Float,
+      weight: map['weight'] as double,
+      height: map['height'] as double,
+      bmiResult: map["bmiResult"] as double,
       bmiCategory: map["bmiCategory"] as String
     );
   }
 
   @override
   String toString() {
-    return 'User(dateTime: $dateTime, age: $age, weight: $weight, height: $height, bmiResult: $bmiResult,bmiCategory: $bmiCategory,)';
+    return 'DateTime: $dateTime, Age: $age, Weight: $weight, Height: $height, BMIResult: $bmiResult, BMICategory: $bmiCategory,)';
   }
 }

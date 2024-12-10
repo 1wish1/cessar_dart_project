@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:health_management/Connection/Neo4jConnection.dart';
+import 'package:health_management/Service/BMIService.dart';
 import 'package:health_management/Service/TokenService.dart';
 import 'package:health_management/Service/UserService.dart';
 
@@ -13,4 +14,6 @@ void setupDI() {
   // Register the UserService and inject Neo4jConnection
   sl.registerLazySingleton<UserService>(() => UserService());
   sl.registerLazySingleton<TokenService>(() => TokenService());
+  sl.registerLazySingleton<BMIService>(() => BMIService());
+  
 }

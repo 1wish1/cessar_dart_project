@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:health_management/Service/BMIService.dart';
 import 'package:health_management/Service/UserService.dart';
 import 'package:health_management/di.dart';
 import 'LoginPage.dart';
@@ -13,12 +14,16 @@ void main() {
   setupDI();
   initialize();
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => UserService(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => UserService()),
+        ChangeNotifierProvider(create: (context) => BMIService()),
+      ],
       child: const MyApp(),
     ),
   );
 }
+
 
 void initialize() {
   
