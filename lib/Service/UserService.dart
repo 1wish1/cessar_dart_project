@@ -16,7 +16,7 @@ import 'package:health_management/model/User.dart';
 import '../Connection/Neo4jConnection.dart';
 
 class UserService with ChangeNotifier{
-  // Method to insert a user into the Neo4j database
+ 
   final client = Neo4jConnection.getClient();
 
   TokenService get tokenService => sl<TokenService>();
@@ -41,30 +41,30 @@ class UserService with ChangeNotifier{
         'username': user.username,
         'password': user.password,
         'email': user.email,
-        'token': BCrypt.hashpw(token, BCrypt.gensalt()), // Assuming you have a function to generate tokens
+        'token': BCrypt.hashpw(token, BCrypt.gensalt()), 
       },
     );
 
 
     try {
-      // Execute the query
+     
       final response = await client.execute([query]);
 
     if (response.results != null && response.results!.isNotEmpty) {
       var resultData = response.results!.first.data?.first;
       if (resultData != null) {
-        // Extract the row data
+    
         var row = resultData.row?.first;
         var meta = resultData.meta?.first;
 
         if (row != null && meta != null) {
-          // Parse fields
+    
           String password = row['password'];
           String email = row['email'];
           String username = row['username'];
           int id = meta['id'];
 
-          // Create the User object
+      
           User _user = User(
             id: id,
             password: password,
@@ -78,8 +78,6 @@ class UserService with ChangeNotifier{
           _BMIService.getBMIsForUser(_user.id);
           notifyListeners();
 
-          print('User created: $currentUser');
-        
         }
       }
     }
@@ -102,33 +100,32 @@ class UserService with ChangeNotifier{
     );
 
     try {
-      // Execute the query to get the user by username
+   
       final response = await client.execute([query]);
      
 
       if (response.results != null && response.results!.isNotEmpty) {
         var resultData = response.results!.first.data?.first;
         if (resultData != null) {
-          // Extract the row data
+        
           var row = resultData.row?.first;
            var meta = resultData.meta?.first;
 
           if (row != null) {
-            String storedPassword = row['password'] ?? ''; // Stored password from the database
-            String storedUsername = row['username'] ?? ''; // Stored username from the database
-            String email = row['email'] ?? ''; // Email (if needed)
+            String storedPassword = row['password'] ?? ''; 
+            String storedUsername = row['username'] ?? ''; 
+            String email = row['email'] ?? ''; 
             
-            // Verify if the provided password matches the stored password
+           
             if (BCrypt.checkpw(user.password, storedPassword)) {
              
               User _user = User(
-                id: meta['id'], // Assuming id is in row data
+                id: meta['id'], 
                 username: user.email,
                 password: storedPassword,
                 email: user.email,
               );
-              // _user.token = generateToken();
-              // updateToken(user.email,user.email,BCrypt.hashpw(_user.token, BCrypt.gensalt()));
+             
 
               _currentUser = _user;
               _BMIService.getBMIsForUser(_user.id);
@@ -136,7 +133,6 @@ class UserService with ChangeNotifier{
               await updateToken(_user.username, user.email,_user.id);
               notifyListeners();
 
-              print('User logged in: $_currentUser');
             } else {
               throw Exception('Invalid password');
             }
@@ -165,8 +161,7 @@ class UserService with ChangeNotifier{
 
     try {
       final response = await client.execute([query]);
-      print("========================================");
-      print(response);
+
       if (response.results!.isNotEmpty) {
         print('Token updated successfully');
         tokenService.saveTokenToFile(newToken,userId);
@@ -197,6 +192,12 @@ class UserService with ChangeNotifier{
     final random = Random.secure();
     final bytes = List<int>.generate(32, (_) => random.nextInt(256));
     return base64Url.encode(bytes);
+  }
+  Future<void> logout() async {
+    tokenService.deleteTokenFile();
+    _currentUser == null;
+    isLogin = false;
+    notifyListeners();
   }
 
 }

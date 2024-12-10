@@ -43,7 +43,7 @@ class BMIService with ChangeNotifier{
       final response = await client.execute([query]);
       if (response.results != null && response.results!.isNotEmpty) {
         var resultData = response.results!.first.data?.first;
-        print(resultData); 
+      
         if (resultData != null) {
           var meta = resultData.meta?.first;
           BMI.id = meta['id'];
@@ -56,7 +56,7 @@ class BMIService with ChangeNotifier{
       }
 
     }catch(e){
-      print('Error logging in: $e');
+   
       throw Exception('Login failed: $e');
     }
     return null;
@@ -101,7 +101,6 @@ class BMIService with ChangeNotifier{
         throw Exception('No BMI data found for user with ID: $userId');
       }
     } catch (e) {
-      print('Error fetching BMI list: $e');
       throw Exception('Failed to fetch BMI list: $e');
     }
   }
@@ -118,7 +117,6 @@ class BMIService with ChangeNotifier{
     );
      try {
       final response = await client.execute([query]);
-      print(response);
       await getBMIsForUser(_UserService.currentUser!.id);
       notifyListeners();
      }catch(e){

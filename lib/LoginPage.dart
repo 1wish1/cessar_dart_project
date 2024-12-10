@@ -12,7 +12,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _formKey = GlobalKey<FormState>(); // For form validation
+  final _formKey = GlobalKey<FormState>(); 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -38,9 +38,9 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ],
           ),
-          width: 350, // Set a width for the container
+          width: 350, 
           child: Form(
-            key: _formKey, // Associate form key
+            key: _formKey, 
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

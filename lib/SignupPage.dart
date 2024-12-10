@@ -14,7 +14,7 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
 
-  final _formKey = GlobalKey<FormState>(); // Key for form validation
+  final _formKey = GlobalKey<FormState>(); 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -47,7 +47,7 @@ class _SignupPageState extends State<SignupPage> {
               ),
             ],
           ),
-          width: 350, // Set a width for the container
+          width: 350, 
           child: Form(
             key: _formKey,
             child: Column(
@@ -153,7 +153,7 @@ class _SignupPageState extends State<SignupPage> {
                           ),
                         );
                       } catch (e) {
-                        // Show error dialog
+                       
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(

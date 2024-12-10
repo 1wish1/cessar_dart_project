@@ -6,7 +6,7 @@ class Authentication {
 
   Authentication({required this.token, required this.createdAt,required this.userId, ExpiresIn});
 
-  // Factory method to create an instance from JSON data
+ 
   factory Authentication.fromJson(Map<String, dynamic> json) {
     return Authentication(
       token: json['token'],
@@ -16,7 +16,7 @@ class Authentication {
     );
   }
 
-  // Method to convert the instance to a JSON map
+ 
   Map<String, dynamic> toJson() {
     return {
       'token': token,

@@ -38,7 +38,7 @@ class _BMICalculatorState extends State<BMICalculator> {
 
   void initState() {
     super.initState();
-    user = userService.currentUser;  // Fetch age from UserService if available
+    user = userService.currentUser;  
     if(user != null){
       setState(() {
         _bmiHistory = _BMIService.bmiHistory;
@@ -46,7 +46,7 @@ class _BMICalculatorState extends State<BMICalculator> {
     }
   }
 
-  // Method to determine BMI category
+  
   String _getBMICategory(double bmi) {
     if (bmi < 18.5) {
       return 'Underweight';
@@ -65,11 +65,11 @@ class _BMICalculatorState extends State<BMICalculator> {
     final int? _age = int.tryParse(_ageController.text);
 
     if (weight != null && height != null && height > 0) {
-      // Calculate BMI and determine the category
+      
       final double bmiResult = weight / (height * height);
       final String bmiCategory = _getBMICategory(bmiResult);
 
-      // Get the current date and time
+     
       final DateTime currentDateTime = DateTime.now();
 
       BMI? bmi = BMI(
@@ -94,7 +94,7 @@ class _BMICalculatorState extends State<BMICalculator> {
         });
       }
 
-      // Update the stat
+      
     }
   }
   Color _getCategoryColor(String category) {
@@ -108,7 +108,7 @@ class _BMICalculatorState extends State<BMICalculator> {
       case 'Obese':
         return Colors.red;
       default:
-        return Colors.grey; // Default color for undefined categories
+        return Colors.grey; 
     }
   }
   Color _getBackgroundColor(String bmiCategory) {
@@ -121,7 +121,7 @@ class _BMICalculatorState extends State<BMICalculator> {
     } else if (bmiCategory.contains('Obese')) {
       return Colors.red;
     } else {
-      return Colors.grey; // Default color for undefined categories
+      return Colors.grey; 
     }
   }
   void _deleteHistorySign(int id,int index) {
@@ -144,41 +144,70 @@ class _BMICalculatorState extends State<BMICalculator> {
       appBar: AppBar(
       title: const Text('Health Management'),
       actions: [
+       
+      if (!userService.isLogin) ...[
         Padding(
-            padding: EdgeInsets.only(left: 5.0), // Add left margin to the first button
-            child: TextButton(
-              onPressed: () {
-               Navigator.pushNamed(context, "/login");
-              },
-              style: TextButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: const Text(
-                'Login',
-                style: TextStyle(color: Colors.teal),
+          padding: EdgeInsets.only(left: 5.0), 
+          child: TextButton(
+            onPressed: () {
+              Navigator.pushNamed(context, "/login");
+            },
+            style: TextButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 25.0), // Add left margin to the second button
-            child: TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, "/signup");
-              },
-              style: TextButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: const Text(
-                'Signup',
-                style: TextStyle(color: Colors.teal),
-              ),
+            child: const Text(
+              'Login',
+              style: TextStyle(color: Colors.teal),
             ),
           ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 25.0), 
+          child: TextButton(
+            onPressed: () {
+              Navigator.pushNamed(context, "/signup");
+            },
+            style: TextButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text(
+              'Signup',
+              style: TextStyle(color: Colors.teal),
+            ),
+          ),
+        ),
+      ] else ...[
+        Padding(
+          padding: const EdgeInsets.only(right: 25.0), 
+          child: TextButton(
+            onPressed: () {
+              userService.logout(); 
+               setState(() {
+                user = null;
+                _bmiHistory.clear();
+
+              });
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => BMICalculator()),
+              );
+            },
+            style: TextButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text(
+              'Logout',
+              style: TextStyle(color: Colors.teal),
+            ),
+          ),
+        ),
       ],
+    ],
     ),
       body: 
       SingleChildScrollView(
@@ -187,7 +216,9 @@ class _BMICalculatorState extends State<BMICalculator> {
         Column(
           children: [
               Text(
-              'Hi, ${userService.currentUser?.username ?? "Guest"}!',
+              userService.isLogin 
+              ? 'Hi, ${userService.currentUser?.username}!' 
+              : 'Hi, Guest!',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -286,13 +317,13 @@ class _BMICalculatorState extends State<BMICalculator> {
                       itemCount: _bmiHistory.length,
                       itemBuilder: (context, index) {
                         return Container(
-                          margin: const EdgeInsets.symmetric(vertical: 8.0), // Adds top and bottom spacing
+                          margin: const EdgeInsets.symmetric(vertical: 8.0),
                           decoration: BoxDecoration(
-                            color: _getBackgroundColor(_bmiHistory[index].toString()), // Background color
-                            borderRadius: BorderRadius.circular(12.0), // Rounded corners
+                            color: _getBackgroundColor(_bmiHistory[index].toString()), 
+                            borderRadius: BorderRadius.circular(12.0), 
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0), // Adds padding inside the container
+                            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0), 
                             child: ListTile(
                               leading: const Icon(Icons.history, color: Color.fromARGB(255, 84, 97, 96)),
                               title: Text(_bmiHistory[index].toString()),
