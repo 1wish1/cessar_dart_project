@@ -3,6 +3,9 @@
 A new Flutter project.
 neo4j database
 
+group by Vincent million, Paul Traquena , john karl tauzo
+BSIT-3-A
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
