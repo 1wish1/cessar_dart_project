@@ -3,7 +3,7 @@
 A new Flutter project.
 neo4j database
 
-group by Vincent million, Paul Traquena , john karl tauzo,Ed John olino
+group by Vincent million, Paul Traquena , john karl tabuzo,Ed John olino
 BSIT-3-A
 
 ## Getting Started
